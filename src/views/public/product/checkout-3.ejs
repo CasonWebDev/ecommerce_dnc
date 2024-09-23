@@ -1,0 +1,145 @@
+<%- include ('../partials/navbar.ejs') %>
+
+<div class="checkout-3 p-5">
+  <div class="container-fluid">
+    <h4 class="h4 text-center">
+      Checkout process
+    </h4>
+    <h5 class="h5 text-center pb-3 mb-3 border-bottom">
+      Review your order
+    </h5>
+
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+
+        <%- include ('../partials/messages.ejs') %>
+
+        <div class="row justify-content-between">
+          <div class="col-md-6">
+            <h5 class="h5 mt-3">
+              Shipping details
+            </h5>
+            <p class="my-2 ml-2">
+              <b>Address: </b><%- user.address %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Zip code: </b><%- user.zipCode %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Country: </b><%- user.country %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Phone number: </b><%- user.phone %>
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <h5 class="h5 mt-3">
+              Payment information
+            </h5>
+            <p class="my-2 ml-2">
+              <b>Credit Card Number: </b><%- user.ccNumber %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>CVV Number: </b><%- user.cvvNumber %>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <h5 class="h5 mt-3">
+              Products
+            </h5>
+            
+            <% cart.forEach(item => { %>
+              <% products.forEach(product => { %>
+                <% if(product.id == item.product_id) { %>
+                  <% let productImages = [] %>
+                  <% images.forEach(image => { %>
+                    <% if(image.product_id == product.id){ %>
+                      <% productImages.push(image) %>
+                    <% } %>
+                  <% }) %>
+
+                  <div class="row product mx-auto mt-3 pb-3 border-bottom">
+                    <div class="col-md-4">
+                      <img class="d-block w-100 border" src="<%- productImages[0].path %>" alt="Product image">
+                    </div>
+                    <div class="col-md-8">
+                      <p class="my-2 ml-2">
+                        <b>Product: </b><span><%- product.title %></span>
+                      </p>
+                      <p class="my-2 ml-2">
+                        <b>Price: </b><span class="product-price" data-productId="<%- product.id %>"><%- product.price %></span> €
+                      </p>
+                      <p class="my-2 ml-2">
+                        <b>Quantity: </b><span class="product-quantity"><%- item.quantity %></span> units
+                      </p>
+                      <p class="my-2 ml-2">
+                        <% let totalProduct = (item.quantity * product.price) %>
+                        <b>Total: </b><span><%- totalProduct.toFixed(2) %></span> €
+                      </p>
+                    </div>
+                  </div>
+
+                <% } %>
+              <% }) %>
+            <% }) %>
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <h5 class="h5 mt-3">
+              <b>Total order: </b>
+              <% let totalOrder = 0 %>
+              <% cart.forEach(item => { %>
+                <% products.forEach(product => { %>
+                  <% if(product.id == item.product_id) { %>
+                    <% totalOrder += (product.price * item.quantity) %>
+                  <% } %>
+                <% }) %>
+              <% }) %>
+              <span id="totalOrder"><%- totalOrder.toFixed(2) %></span> €
+            </h5>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div id="alert-noTerms" class="alert alert-warning fade show mt-1" style="display: none">
+              <strong>Warning! </strong><span></span>
+            </div>
+            <div id="alert-ajax" class="alert alert-danger fade show mt-1" style="display: none">
+              <strong>Error! </strong><span></span>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" value="" id="terms">
+              <label class="form-check-label" for="terms">
+                I accept the <u>Terms and Conditions</u>
+              </label>
+            </div>
+
+            <a href="/checkout/2" class="btn btn-secondary mt-2">Back</a>
+            <button 
+              type="submit" 
+              class="btn btn-primary mt-2" 
+              id="btn-confirmOrder" 
+              data-userId="<%- user.id %>"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/confirm-order.js"></script>

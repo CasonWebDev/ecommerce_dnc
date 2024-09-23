@@ -1,0 +1,59 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top">
+  <a class="navbar-brand" href="/">
+    <img
+      src="/img/logo.png"
+      width="30" height="30" class="rounded d-inline-block align-top mr-2 mt-0" alt="">
+    <div class="d-none d-sm-inline-block mt-0 text-muted" id="logo">
+      Jewelz
+    </div>
+  </a>
+
+  <a id="cart" class="nav-link text-body text-muted hoverable" href="/cart">
+    <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-cart3" fill="currentColor">
+      <path fill-rule="evenodd" d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+    </svg>
+    <span id="productCount" class="badge badge-info">
+      <% if(typeof(user) !== "undefined" && typeof(cart) !== "undefined") { %>
+        <%- cart.length %>
+      <% } else { %>
+        0
+      <% } %>
+    </span>
+  </a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler"
+    aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarToggler">
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0 w-100 d-flex justify-content-between">
+      <div class="w-auto mt-0">
+        <% if(typeof(user) !== "undefined") { %>
+          <li id="profile" class="nav-item text-right d-lg-inline-block">
+            <a class="nav-link" href="/user/profile">
+              Profile
+            </a>
+          </li>
+        <% } %>
+      </div>
+      <div class="w-auto mt-0">
+        <% if(typeof(user) == "undefined") { %>
+          <li class="nav-item text-right d-lg-inline-block">
+            <a class="nav-link" href="/user/login">
+              Login
+            </a>
+          </li>
+        <% } %>
+        <% if(typeof(user) !== "undefined") { %>
+          <li class="nav-item text-right d-lg-inline-block">
+            <a class="nav-link" href="/user/logout">
+              Logout
+            </a>
+          </li>
+        <% } %>
+      </div>
+    </ul>
+  </div>
+</nav>
+<script type="text/javascript" src="/js/navbar-items.js"></script>

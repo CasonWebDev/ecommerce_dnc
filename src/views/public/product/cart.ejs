@@ -1,0 +1,88 @@
+<%- include ('../partials/navbar.ejs') %>
+
+<div class="cart p-5">
+  <div class="container-fluid">
+
+    <div class="row p-0">
+      <div class="col-1"></div>
+
+      <div class="col-10">
+        <div class="row border-bottom header-cart">
+          <h2 class="h3">Your shopping cart</h2>
+        </div>
+
+        <% if(cart.length == 0) { %>
+          <div class="row no-products">
+            <h5 class="h6 mx-auto my-3">
+              You have added no products to the cart yet!
+            </h5>
+          </div>
+        <% } %>
+
+        <div class="alert alert-danger fade show mt-3 d-none">
+          <strong>Error! </strong><span></span>
+        </div>
+
+        <% cart.forEach(item => { %>
+          <% products.forEach(product => { %>
+            <% if(product.id == item.product_id) { %>
+              <% let productImages = [] %>
+              <% images.forEach(image => { %>
+                <% if(image.product_id == product.id){ %>
+                  <% productImages.push(image) %>
+                <% } %>
+              <% }) %>
+
+              <div class="row justify-content-center product border-bottom py-3">
+                <div class="col-md-4">
+                  <img class="d-block w-100 border" src="<%- productImages[0].path %>" alt="Product image">
+                </div>
+
+                <div class="col-md-6">
+                  <h3 class="h4 my-3"><%- product.title %></h3>
+                  <p class="my-2"><%- product.description %></p>
+                  <p class="my-2">
+                    <b>Stock: </b><%- (product.stock + item.quantity) %>
+                  </p>
+                  <p class="my-2"><b>Price: </b><%- product.price %> €</p>
+                  <label for="quantity" class="d-inline-block py-2 my-0"><b>Quantity:</b></label>
+                  <input 
+                    class="form-control d-inline-block w-25 quantity" 
+                    type="number" 
+                    name="quantity" 
+                    min="0" 
+                    max="<%- (product.stock + item.quantity) %>" 
+                    value="<%- item.quantity %>"
+                    data-productId="<%- product.id %>" 
+                    data-userId="<%- user.id %>"
+                  >
+                </div>
+              </div>
+
+            <% } %>
+          <% }) %>
+        <% }) %>
+
+      </div>
+
+      <div class="col-1"></div>
+    </div>
+
+    <div class="row justify-content-center">
+      <a 
+        type="button" 
+        id="btn-checkout"
+        <% if(cart.length == 0) { %>
+          class="btn btn-primary mt-3 disabled" 
+        <% } else { %>
+          class="btn btn-primary mt-3" 
+        <% } %>
+        href="/checkout/1" 
+      >
+        Checkout and pay!
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/change-quantity.js"></script>

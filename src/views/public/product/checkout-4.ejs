@@ -1,0 +1,128 @@
+<%- include ('../partials/navbar.ejs') %>
+
+<div class="checkout-4 p-5">
+  <div class="container-fluid">
+    <h4 class="h4 text-center">
+      Checkout process
+    </h4>
+    <h5 class="h5 text-center pb-3 mb-3 border-bottom">
+      Purchase process completed! 🎉
+    </h5>
+
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+
+        <div class="row justify-content-between">
+          <div class="col-md-6">
+            <h5 class="h5 mt-3">
+              Shipping details
+            </h5>
+            <p class="my-2 ml-2">
+              <b>Address: </b><%- user.address %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Zip code: </b><%- user.zipCode %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Country: </b><%- user.country %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>Phone number: </b><%- user.phone %>
+            </p>
+          </div>
+
+          <div class="col-md-6">
+            <h5 class="h5 mt-3">
+              Payment information
+            </h5>
+            <p class="my-2 ml-2">
+              <b>Credit Card Number: </b><%- user.ccNumber %>
+            </p>
+            <p class="my-2 ml-2">
+              <b>CVV Number: </b><%- user.cvvNumber %>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <h5 class="h5 mt-3">
+              Products
+            </h5>
+
+            <% let orderId = lastOrders[0].id %>
+            <% let orderItems = [] %>
+            <% ordersItems.forEach(orderItem => { %>
+              <% if (orderItem.order_id == orderId) { %>
+                <% orderItems.push(orderItem) %>
+              <% } %>
+            <% }) %>
+
+            <% orderItems.forEach(item => { %>
+              <% let itemImages = [] %>
+              <% images.forEach(image => { %>
+                <% if(image.product_id == item.product_id){ %>
+                  <% itemImages.push(image) %>
+                <% } %>
+              <% }) %>
+              <% let product_name = "" %>
+              <% products.forEach(product => { %>
+                <% if(product.id == item.product_id){ %>
+                  <% product_name = product.title %>
+                <% } %>
+              <% }) %>
+
+              <div class="row product mx-auto mt-3 pb-3 border-bottom">
+                <div class="col-md-4">
+                  <img class="d-block w-100 border" src="<%- itemImages[0].path %>" alt="Product image">
+                </div>
+                <div class="col-md-8">
+                  <p class="my-2 ml-2">
+                    <b>Product: </b><%- product_name %>
+                  </p>
+                  <p class="my-2 ml-2">
+                    <b>Price: </b><%- item.product_price %> €
+                  </p>
+                  <p class="my-2 ml-2">
+                    <b>Quantity: </b><%- item.quantity %> units
+                  </p>
+                  <p class="my-2 ml-2">
+                    <% let totalProduct = (item.product_price * item.quantity) %>
+                    <b>Total: </b><%- totalProduct.toFixed(2) %> €
+                  </p>
+                </div>
+              </div>
+
+            <% }) %>
+
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <h5 class="h5 mt-3 border-bottom pb-3">
+              <b>Total order: </b>
+              <% let totalOrder = 0 %>
+              <% orderItems.forEach(item => { %>
+                <% totalOrder += (item.product_price * item.quantity) %>
+              <% }) %>
+              <span><%- totalOrder.toFixed(2) %></span> €
+            </h5>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <p class="my-1">
+              Back to
+              <a href="/" class="text-decoration-none text-body"><b>homepage</b></a>.
+            </p>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+{
+  "name": "ecommerce-dnc",
+  "version": "1.0.0",
+  "description": "Projeto e-commerce DNC utilizado no curso de Arquitetura de Software da Escola DNC",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "npx nodemon",
+    "create-db": "node ./src/seed/db_creation.js"
+  },
+  "keywords": [],
+  "author": "Joao Calvino Cason",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "bootstrap": "^4.5.2",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.5",
+    "csurf": "^1.11.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-ejs-layouts": "^2.5.0",
+    "express-mysql-session": "^2.1.4",
+    "helmet": "^4.1.1",
+    "jquery": "^3.5.1",
+    "mysql": "^2.18.1",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "pug": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

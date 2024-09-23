@@ -1,0 +1,52 @@
+<% if(typeof(message) != "undefined") { %>
+  <div class="cont-error">
+    <% if(message.code !== undefined) { %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <strong>Error!</strong> <%- message.sqlMessage %>
+    <% } else if (message.message !== undefined) { %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <strong>Error!</strong> <%- message.message %>
+    <% } else { %>
+      <div class="alert alert-success alert-dismissible fade show">
+        <strong>Success!</strong> <%- message %>
+    <% } %>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+  </div>
+<% } %>
+
+<% if(success_msg != '') { %>
+  <div class="cont-error">
+    <div class="alert alert-success alert-dismissible fade show">
+      <strong>Success!</strong> <%- success_msg %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  </div>
+<% } %>
+
+<% if(error_msg != '') { %>
+  <div class="cont-error">
+    <div class="alert alert-danger alert-dismissible fade show">
+      <strong>Error!</strong> <%- error_msg %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  </div>
+<% } %>
+
+<% if(warning_msg != '') { %>
+  <div class="cont-error">
+    <div class="alert alert-warning alert-dismissible fade show">
+      <strong>Warning!</strong> <%- warning_msg %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  </div>
+<% } %>
+
+<% if(error != '') { %>
+  <div class="cont-error">
+    <div class="alert alert-danger alert-dismissible fade show">
+      <strong>Error!</strong> <%- error %>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+  </div>
+<% } %>

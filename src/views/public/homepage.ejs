@@ -1,0 +1,108 @@
+<%- include ('partials/navbar.ejs') %>
+
+<div class="album pt-4 pb-1">
+  <div class="container">
+
+    <%- include ('partials/messages.ejs') %>
+
+    <div class="row">
+
+      <% products.forEach(product => { %>
+
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+
+            <% let productImages = [] %>
+            <% images.forEach(image => { %>
+              <% if(image.product_id == product.id){ %>
+                <% productImages.push(image) %>
+              <% } %>
+            <% }) %>
+            <a href="/product/<%- product.id %>">
+              <img 
+                src="<%- productImages[0].path %>" 
+                alt="" 
+                width="100%"
+              >
+            </a>
+
+            <div class="card-body border-top">
+              <b class="card-text">
+                <%- product.title %>
+              </b>
+              <p class="card-text mt-2">
+                <%- product.description %>
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <button 
+                  type="button" 
+                  data-listener="true"
+                  <% let found = false %>
+                  <% cart.forEach(item => { %>
+                    <% if(item.product_id == product.id) { %>
+                      <% found = true %>
+                    <% } %>
+                  <% }) %>
+                  <% if (found) { %>
+                    class="btn btn-sm btn-outline-danger btn-cart" 
+                  <% } else { %>
+                    class="btn btn-sm btn-outline-info btn-cart" 
+                  <% } %>
+                  data-productId="<%- product.id %>"
+                  <% if(product.stock == 0 || typeof(user) == "undefined") { %>
+                    disabled
+                  <% } %>
+                  <% if(typeof(user) == "undefined") { %>
+                    data-userId=""
+                  <% } else { %>
+                    data-userId="<%- user.id %>"
+                  <% } %>
+                >
+                  <% found = false %>
+                  <% cart.forEach(item => { %>
+                    <% if(item.product_id == product.id) { %>
+                      <% found = true %>
+                    <% } %>
+                  <% }) %>
+                  <% if (found) { %>
+                    Remove
+                  <% } else { %>
+                    Add to cart
+                  <% } %>
+                </button>
+                <b class="text-body">
+                  <%- product.price %> €
+                </b>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% }) %>
+
+    </div>
+  </div>
+</div>
+
+<% if(totalPages > 1) { %>
+  <div class="d-flex justify-content-center mb-3">
+    <button 
+      type="button" 
+      id="loadPage"
+      class="btn btn-primary" 
+      data-currentPage="1" 
+      data-totalPages="<%- totalPages %>"
+      <% if(typeof(user) == "undefined") { %>
+        data-userId=""
+      <% } else { %>
+        data-userId="<%- user.id %>"
+      <% } %>
+    >
+      Load more
+    </button>
+  </div>
+<% } %>
+
+<script src="/js/function-toggleCart.js"></script>
+<script src="/js/event-toggleCart.js"></script>
+<script src="/js/pagination.js"></script>
