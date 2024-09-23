@@ -16,7 +16,7 @@ The repository contains the files and folders detailed below:
 
 - **_src_**: it is the root folder of the project, divided into sub-folders which are structured as per the chosen project architecture (the MVC pattern): _config_, _controllers_, _models_, _routes_, _seed_ and _views_.
 
-- **_.env-template_**: a file with the individual user environment variables needed to run the application.
+- **_.env_**: a file with the individual user environment variables needed to run the application.
 
 - **_.gitignore_**: used to indicate the files and folders to be ignored by the version control system _Git_.
 
@@ -30,6 +30,14 @@ The repository contains the files and folders detailed below:
 
 ---
 
-## ✒️ Author
+## Run the project
+
+1. Clone the repository
+2. Run docker compose up -d
+3. Run docker exec -it ecommerce_dnc-app bash
+4. Run npm run create-db
+3. Access to localhost:3000
+
+## ✒️ Original Fork from Author
 
 - **Jorge García Torralba** &#8594; [jorge-garcia](https://code.assemblerschool.com/jorge-garcia/)
