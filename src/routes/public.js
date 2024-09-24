@@ -7,10 +7,14 @@ router.use(csrfProtection);
 
 import { ProductController } from "./../controllers/ProductController.js";
 import { CartController } from "./../controllers/CartController.js";
-import { CheckoutController } from "./../controllers/CheckoutController.js";
+import { CheckoutController } from './controllers/checkoutController.js';
+import { ProductModel } from './models/ProductModel.js';
+import { ImageModel } from './models/ImageModel.js';
+import { UserModel } from './models/UserModel.js';
+import { VIEWS } from './config/app-config.js';
 const productController = new ProductController();
 const cartController = new CartController();
-const checkoutController = new CheckoutController();
+const checkoutController = new CheckoutController(ProductModel, ImageModel, UserModel, VIEWS);
 
 import { AuthUtil } from "../config/auth.js";
 const Auth = new AuthUtil();

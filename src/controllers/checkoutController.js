@@ -1,12 +1,4 @@
 import path from "path";
-import { ProductModel } from "../models/ProductModel.js";
-import { ImageModel } from "../models/ImageModel.js";
-import { UserModel } from "../models/UserModel.js";
-const Product = new ProductModel();
-const Image = new ImageModel();
-const User = new UserModel();
-
-import { VIEWS } from "./../config/app-config.js";
 
 class Validator {
     validate(value) {
@@ -88,6 +80,13 @@ class PhoneNumberValidator extends Validator {
 }
 
 export class CheckoutController {
+    constructor(productModel, imageModel, userModel, views) {
+        this.Product = productModel;
+        this.Image = imageModel;
+        this.User = userModel;
+        this.VIEWS = views;
+    }
+
   async goToCheckout(req, res) {
     let step = req.params.step;
     let checkoutView = "checkout-" + step + ".ejs";
@@ -99,11 +98,11 @@ export class CheckoutController {
     let lastOrders = [];
     let ordersItems = [];
     if (typeof(user) !== "undefined") {
-      cart = await Product.getUserCart(user.id);
-      products = await Product.get();
-      images = await Image.get();
-      lastOrders = await Product.getLastOrderUser(user.id);
-      ordersItems = await Product.getOrderItems();
+      cart = await this.Product.getUserCart(user.id);
+      products = await this.Product.get();
+      images = await this.Image.get();
+      lastOrders = await this.Product.getLastOrderUser(user.id);
+      ordersItems = await this.Product.getOrderItems();
     }
 
     res.render(
@@ -125,7 +124,7 @@ export class CheckoutController {
 
     let cart = [];
     if (typeof(req.user) !== "undefined") {
-      cart = await Product.getUserCart(req.user.id);
+      cart = await this.Product.getUserCart(req.user.id);
     }
 
     let validators = [
@@ -151,7 +150,7 @@ export class CheckoutController {
     if(!validated){
       let error = new Error("Invalid input fields");
       res.render(
-        path.resolve(VIEWS, "public", "product", "checkout-1.ejs"), {
+        path.resolve(this.VIEWS, "public", "product", "checkout-1.ejs"), {
           title: "Checkout",
           address: address,
           zipCode: zipCode,
@@ -164,7 +163,7 @@ export class CheckoutController {
         }
       );
     } else {
-      const promise = User.addShippingDetails(req.user, [address, zipCode, country, phoneNumber]);
+      const promise = this.User.addShippingDetails(req.user, [address, zipCode, country, phoneNumber]);
       promise
         .then(result => {
           req.flash('success_msg', result);
@@ -172,7 +171,7 @@ export class CheckoutController {
         })
         .catch(error => {
           res.render(
-            path.resolve(VIEWS, "public", "product", "checkout-1.ejs"), {
+            path.resolve(this.VIEWS, "public", "product", "checkout-1.ejs"), {
               title: "Checkout",
               address: address,
               zipCode: zipCode,
@@ -193,7 +192,7 @@ export class CheckoutController {
 
     let cart = [];
     if (typeof(req.user) !== "undefined") {
-      cart = await Product.getUserCart(req.user.id);
+      cart = await this.Product.getUserCart(req.user.id);
     }
 
     // Form validation
@@ -218,7 +217,7 @@ export class CheckoutController {
 
     if (!validated) {
       res.render(
-        path.resolve(VIEWS, "public", "product", "checkout-2.ejs"), {
+        path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"), {
           title: "Checkout",
           ccNumber: ccNumber,
           cvvNumber: cvvNumber,
@@ -229,7 +228,7 @@ export class CheckoutController {
         }
       );
     } else {
-      const promise = User.addPaymentDetails(req.user, [ccNumber, cvvNumber]);
+      const promise = this.User.addPaymentDetails(req.user, [ccNumber, cvvNumber]);
       promise
         .then(result => {
           req.flash('success_msg', result);
@@ -237,7 +236,7 @@ export class CheckoutController {
         })
         .catch(error => {
           res.render(
-            path.resolve(VIEWS, "public", "product", "checkout-2.ejs"), {
+            path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"), {
               title: "Checkout",
               ccNumber: ccNumber,
               cvvNumber: cvvNumber,
@@ -257,7 +256,7 @@ export class CheckoutController {
     const products = JSON.parse(products_stringified);
 
     let promises = [];
-    let createOrderPromise = Product.createOrder(customer_id, total_order);
+    let createOrderPromise = this.Product.createOrder(customer_id, total_order);
     createOrderPromise
       .then(orderId => {
         products.forEach(product => {
