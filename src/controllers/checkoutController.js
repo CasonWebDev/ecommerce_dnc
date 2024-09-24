@@ -33,6 +33,19 @@ class CreditCardValidator extends Validator {
     }
 }
 
+class ValidatorFactory {
+    static createValidator(type) {
+      switch (type) {
+        case 'cvv':
+          return new CVVValidator();
+        case 'creditCard':
+          return new CreditCardValidator();
+        default:
+          throw new Error('Tipo de validador inválido');
+      }
+    }
+  }
+
 class AddressValidator extends Validator {
     validate(value) {
         // Implementar a lógica de validação do endereço
@@ -196,9 +209,9 @@ export class CheckoutController {
     }
 
     // Form validation
-    let validators = [
-      new CVVValidator(),
-      new CreditCardValidator()
+    const validations = [
+      { type: 'creditCard', value: ccNumberCurated },
+      { type: 'cvv', value: cvvNumberCurated }
     ];
 
     let validated = true;
@@ -207,13 +220,14 @@ export class CheckoutController {
     let ccNumberCurated = ccNumber.replace(/-/g, "").replace(/ /g, "");
     let cvvNumberCurated = cvvNumber.replace(/-/g, "").replace(/ /g, "");
 
-    for (let validator of validators) {
-      if (!validator.validate(ccNumberCurated) || !validator.validate(cvvNumberCurated)) {
-        validated = false;
-        error = new Error(validator.getErrorMessage());
-        break;
+    for (let validation of validations) {
+        const validator = ValidatorFactory.createValidator(validation.type);
+        if (!validator.validate(validation.value)) {
+          validated = false;
+          error = new Error(validator.getErrorMessage());
+          break;
+        }
       }
-    }
 
     if (!validated) {
       res.render(
