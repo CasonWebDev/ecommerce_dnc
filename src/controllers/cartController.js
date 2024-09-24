@@ -7,6 +7,25 @@ const Image = new ImageModel();
 import { VIEWS } from "./../config/app-config.js";
 
 export class CartController {
+
+ static instance = null;
+
+  constructor() {
+    if (CartController.instance) {
+      return CartController.instance;
+    }
+    this.Product = new ProductModel();
+    this.Image = new ImageModel();
+    CartController.instance = this;
+  }
+
+  static getInstance() {
+    if (!CartController.instance) {
+      CartController.instance = new CartController();
+    }
+    return CartController.instance;
+  }
+    
   async goToCart(req, res) {
     let user = req.user;
     let cart = [];
