@@ -25,4 +25,16 @@ export class ProductService {
     get pageSize() {
         return this.productRepository.pageSize;
     }
+
+    async getCategorias() {
+        return this.productRepository.getCategorias();
+    }
+
+    async getProdutosPorCategoria(categoriaId) {
+        return this.productRepository.getProdutosPorCategoria(categoriaId);
+    }
+
+    async construirCatalogo() {
+        return this.productRepository.construirCatalogo();
+    }
 }

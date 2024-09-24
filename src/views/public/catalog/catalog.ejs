@@ -1,0 +1,20 @@
+<%- include ('../partials/navbar.ejs') %>
+
+<h1>Catálogo de Produtos</h1>
+
+<% function exibirComponente(componente) { %>
+  <% if (componente.filhos) { %>
+    <h2><%= componente.nome %></h2>
+    <ul>
+      <% componente.filhos.forEach(function(filho) { %>
+        <li>
+          <% exibirComponente(filho) %>
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p><%= componente.nome %> - R$<%= componente.preco.toFixed(2) %></p>
+  <% } %>
+<% } %>
+
+<% exibirComponente(catalogo) %>

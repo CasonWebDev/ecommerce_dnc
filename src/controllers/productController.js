@@ -73,4 +73,25 @@ export class ProductController {
         throw e;
     }
   }
+
+  async exibirCatalogo(req, res) {
+    try {
+      const catalogo = await this.productService.construirCatalogo();
+      const user = req.user;
+      const cart = user ? await this.productService.getUserCart(user.id) : [];
+
+      res.render(
+        path.resolve(VIEWS, "public", "catalog", "catalog"),
+        {
+          title: "Catálogo",
+          catalogo,
+          user,
+          cart,
+          csrfToken: req.csrfToken()
+        }
+      );
+    } catch(e) {
+      throw e;
+    }
+  }
 }

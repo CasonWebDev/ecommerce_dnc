@@ -3,6 +3,8 @@ import {
   con
 } from "./../config/app-config.js";
 
+import { Produto, Categoria } from './../components/catalogComponent.js';
+
 // Model class
 export class ProductModel {
 
@@ -218,5 +220,48 @@ export class ProductModel {
         }
       )
     })
+  }
+
+  // Novo método para obter todas as categorias
+  getCategorias() {
+    return new Promise((resolve, reject) => {
+      this.con.query("SELECT * FROM categorias", (error, result) => {
+        if (error) {
+          reject(new Error("Erro de banco de dados"))
+        }
+        resolve(result)
+      })
+    })
+  }
+
+  // Novo método para obter produtos por categoria
+  getProdutosPorCategoria(categoriaId) {
+    return new Promise((resolve, reject) => {
+      this.con.query("SELECT * FROM produtos WHERE categoria_id = ?", [categoriaId], (error, result) => {
+        if (error) {
+          reject(new Error("Erro de banco de dados"))
+        }
+        resolve(result)
+      })
+    })
+  }
+
+  // Novo método para construir a estrutura do catálogo
+  async construirCatalogo() {
+    const categorias = await this.getCategorias();
+    const catalogo = new Categoria("Catálogo Principal", 0);
+
+    for (const categoria of categorias) {
+      const categoriaObj = new Categoria(categoria.nome, categoria.id);
+      const produtos = await this.getProdutosPorCategoria(categoria.id);
+
+      for (const produto of produtos) {
+        categoriaObj.adicionar(new Produto(produto.nome, produto.preco, produto.id));
+      }
+
+      catalogo.adicionar(categoriaObj);
+    }
+
+    return catalogo;
   }
 }
