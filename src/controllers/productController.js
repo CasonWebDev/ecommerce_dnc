@@ -1,24 +1,27 @@
 import path from "path";
-import { ProductModel } from "../models/ProductModel.js";
-import { ImageModel } from "../models/ImageModel.js";
-const Product = new ProductModel();
-const Image = new ImageModel();
+import { ProductRepository } from "../repositories/productRepository.js";
+import { ImageRepository } from "../repositories/imageRepository.js";
 
 import { VIEWS } from "./../config/app-config.js";
 
 export class ProductController {
+    constructor() {
+        this.productRepository = new ProductRepository();
+        this.imageRepository = new ImageRepository();
+    }
+
   async paginatedIndex(req, res) {
     try {
-      let results = await Product.getNumProducts();
+      let results = await this.productRepository.getNumProducts();
       let numProducts = results[0].numProducts;
-      let pageSize = Product.pageSize;
+      let pageSize = this.productRepository.pageSize;
       let totalPages = Math.ceil(numProducts / pageSize);
-      let products = await Product.getPage(1);
-      let images = await Image.get();
+      let products = await this.productRepository.getPage(1);
+      let images = await this.imageRepository.get();
       let user = req.user;
       let cart = [];
       if (typeof(user) !== "undefined") {
-        cart = await Product.getUserCart(user.id);
+        cart = await this.productRepository.getUserCart(user.id);
       }
       
       res.render(
@@ -39,12 +42,12 @@ export class ProductController {
 
   async getPageContent(req, res) {
     try {
-      let products = await Product.getPage(req.params.page);
-      let images = await Image.get();
+      let products = await this.productRepository.getPage(req.params.page);
+      let images = await this.imageRepository.get();
       let user = req.user;
       let cart = [];
       if (typeof(user) !== "undefined") {
-        cart = await Product.getUserCart(user.id);
+        cart = await this.productRepository.getUserCart(user.id);
       }
       res.send({
         products: products,
@@ -58,12 +61,12 @@ export class ProductController {
 
   async goToProduct(req, res) {
     try {
-      let product = await Product.getById(req.params.id);
-      let images = await Image.getByProductId(req.params.id);
+      let product = await this.productRepository.getById(req.params.id);
+      let images = await this.imageRepository.getByProductId(req.params.id);
       let user = req.user;
       let cart = [];
       if (typeof(user) !== "undefined") {
-        cart = await Product.getUserCart(user.id);
+        cart = await this.productRepository.getUserCart(user.id);
       }
 
       res.render(
