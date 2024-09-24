@@ -41,6 +41,52 @@ class CreditCardValidator extends Validator {
     }
 }
 
+class AddressValidator extends Validator {
+    validate(value) {
+        // Implementar a lógica de validação do endereço
+        return value && value.length > 0;
+    }
+
+    getErrorMessage() {
+        return "Invalid address";
+    }
+}
+
+class ZipCodeValidator extends Validator {
+    validate(value) {
+        // Implementar a lógica de validação do código postal
+        const regExZipCode = /^[0-9]{5}(?:-[0-9]{4})?$/;
+        return regExZipCode.test(value);
+    }
+
+    getErrorMessage() {
+        return "Invalid zip code";
+    }
+}
+
+class CountryValidator extends Validator {
+    validate(value) {
+        // Implementar a lógica de validação do país
+        return value && value.length > 0;
+    }
+
+    getErrorMessage() {
+        return "Invalid country";
+    }
+}
+
+class PhoneNumberValidator extends Validator {
+    validate(value) {
+        // Implementar a lógica de validação do número de telefone
+        const regExPhone = /^\+?[1-9]\d{1,14}$/;
+        return regExPhone.test(value);
+    }
+
+    getErrorMessage() {
+        return "Invalid phone number";
+    }
+}
+
 export class CheckoutController {
   async goToCheckout(req, res) {
     let step = req.params.step;
@@ -82,9 +128,25 @@ export class CheckoutController {
       cart = await Product.getUserCart(req.user.id);
     }
 
+    let validators = [
+        { field: 'address', validator: new AddressValidator() },
+        { field: 'zipCode', validator: new ZipCodeValidator() },
+        { field: 'country', validator: new CountryValidator() },
+        { field: 'phoneNumber', validator: new PhoneNumberValidator() }
+    ];
+  
     let validated = true;
-    /* Validation (we could place here whatever 
-      we wanted to validate for each field) */
+    let error;
+    let invalidField;
+  
+    for (let { field, validator } of validators) {
+        if (!validator.validate(req.body[field])) {
+            validated = false;
+            error = new Error(validator.getErrorMessage());
+            invalidField = field;
+            break;
+        }
+    }
 
     if(!validated){
       let error = new Error("Invalid input fields");
