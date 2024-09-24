@@ -8,6 +8,38 @@ const User = new UserModel();
 
 import { VIEWS } from "./../config/app-config.js";
 
+class Validator {
+    validate(value) {
+        throw new Error("Method 'validate()' must be implemented.");
+    }
+
+    getErrorMessage() {
+        throw new Error("Method 'getErrorMessage()' must be implemented.");
+    }
+}
+
+class CVVValidator extends Validator {
+    validate(value) {
+        const regExCVV = /^([0-9]{3,4})$/;
+        return regExCVV.test(value);
+    }
+
+    getErrorMessage() {
+        return "Invalid CVV number";
+    }
+}
+
+class CreditCardValidator extends Validator {
+    validate(value) {
+        const regExVisa = /^4[0-9]{12}(?:[0-9]{3})?$/;
+        const regExMastercard = /^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$/;
+        return regExVisa.test(value) || regExMastercard.test(value);
+    }
+
+    getErrorMessage() {
+        return "Invalid Credit Card number";
+    }
+}
 
 export class CheckoutController {
   async goToCheckout(req, res) {
@@ -103,26 +135,26 @@ export class CheckoutController {
     }
 
     // Form validation
+    let validators = [
+      new CVVValidator(),
+      new CreditCardValidator()
+    ];
+
     let validated = true;
+    let error;
 
     let ccNumberCurated = ccNumber.replace(/-/g, "").replace(/ /g, "");
     let cvvNumberCurated = cvvNumber.replace(/-/g, "").replace(/ /g, "");
 
-    let regExVisa = /^4[0-9]{12}(?:[0-9]{3})?$/;
-    let regExMastercard = /^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$/;
-    let regExCVV = /^([0-9]{3,4})$/;
-
-    let error;
-    if (!regExCVV.test(cvvNumberCurated)){
-      validated = false;
-      error = new Error("Invalid CVV number");
-    }
-    if(!regExVisa.test(ccNumberCurated) && !regExMastercard.test(ccNumberCurated)){
-      validated = false;
-      error = new Error("Invalid Credit Card number");
+    for (let validator of validators) {
+      if (!validator.validate(ccNumberCurated) || !validator.validate(cvvNumberCurated)) {
+        validated = false;
+        error = new Error(validator.getErrorMessage());
+        break;
+      }
     }
 
-    if(!validated){
+    if (!validated) {
       res.render(
         path.resolve(VIEWS, "public", "product", "checkout-2.ejs"), {
           title: "Checkout",
