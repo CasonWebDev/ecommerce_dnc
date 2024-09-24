@@ -92,12 +92,60 @@ class PhoneNumberValidator extends Validator {
     }
 }
 
+// Interface para métodos de pagamento
+class PaymentMethod {
+    validate(paymentDetails) {
+        throw new Error("Método 'validate()' deve ser implementado.");
+    }
+
+    process(paymentDetails) {
+        throw new Error("Método 'process()' deve ser implementado.");
+    }
+}
+
+// Adaptador para cartão de crédito
+class CreditCardAdapter extends PaymentMethod {
+    constructor() {
+        super();
+        this.ccValidator = new CreditCardValidator();
+        this.cvvValidator = new CVVValidator();
+    }
+
+    validate(paymentDetails) {
+        const { ccNumber, cvvNumber } = paymentDetails;
+        return this.ccValidator.validate(ccNumber) && this.cvvValidator.validate(cvvNumber);
+    }
+
+    process(paymentDetails) {
+        // Lógica para processar pagamento com cartão de crédito
+        console.log("Processando pagamento com cartão de crédito");
+    }
+}
+
+// Adaptador para PayPal (exemplo)
+class PayPalAdapter extends PaymentMethod {
+    validate(paymentDetails) {
+        // Lógica de validação para PayPal
+        return true; // Simplificado para este exemplo
+    }
+
+    process(paymentDetails) {
+        // Lógica para processar pagamento com PayPal
+        console.log("Processando pagamento com PayPal");
+    }
+}
+
 export class CheckoutController {
     constructor(productModel, imageModel, userModel, views) {
         this.Product = productModel;
         this.Image = imageModel;
         this.User = userModel;
         this.VIEWS = views;
+
+        this.paymentMethods = {
+            creditCard: new CreditCardAdapter(),
+            paypal: new PayPalAdapter()
+        };
     }
 
   async goToCheckout(req, res) {
@@ -201,66 +249,57 @@ export class CheckoutController {
   }
 
   async validatePayment(req, res) {
-    let { ccNumber, cvvNumber } = req.body;
+    const { paymentMethod, ...paymentDetails } = req.body;
 
     let cart = [];
     if (typeof(req.user) !== "undefined") {
       cart = await this.Product.getUserCart(req.user.id);
     }
 
-    // Form validation
-    const validations = [
-      { type: 'creditCard', value: ccNumberCurated },
-      { type: 'cvv', value: cvvNumberCurated }
-    ];
+    const selectedPaymentMethod = this.paymentMethods[paymentMethod];
 
-    let validated = true;
-    let error;
-
-    let ccNumberCurated = ccNumber.replace(/-/g, "").replace(/ /g, "");
-    let cvvNumberCurated = cvvNumber.replace(/-/g, "").replace(/ /g, "");
-
-    for (let validation of validations) {
-        const validator = ValidatorFactory.createValidator(validation.type);
-        if (!validator.validate(validation.value)) {
-          validated = false;
-          error = new Error(validator.getErrorMessage());
-          break;
-        }
-      }
-
-    if (!validated) {
-      res.render(
-        path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"), {
+    if (!selectedPaymentMethod) {
+      return res.render(
+        path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"),
+        {
           title: "Checkout",
-          ccNumber: ccNumber,
-          cvvNumber: cvvNumber,
+          message: new Error("Método de pagamento inválido"),
+          user: req.user,
+          cart: cart,
+          csrfToken: req.csrfToken()
+        }
+      );
+    }
+
+    if (!selectedPaymentMethod.validate(paymentDetails)) {
+      return res.render(
+        path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"),
+        {
+          title: "Checkout",
+          message: new Error("Detalhes de pagamento inválidos"),
+          user: req.user,
+          cart: cart,
+          csrfToken: req.csrfToken()
+        }
+      );
+    }
+
+    try {
+      await selectedPaymentMethod.process(paymentDetails);
+      await this.User.addPaymentDetails(req.user, paymentDetails);
+      req.flash('success_msg', 'Detalhes de pagamento adicionados com sucesso');
+      res.redirect('/checkout/3');
+    } catch (error) {
+      res.render(
+        path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"),
+        {
+          title: "Checkout",
           message: error,
           user: req.user,
           cart: cart,
           csrfToken: req.csrfToken()
         }
       );
-    } else {
-      const promise = this.User.addPaymentDetails(req.user, [ccNumber, cvvNumber]);
-      promise
-        .then(result => {
-          req.flash('success_msg', result);
-          res.redirect('/checkout/3');
-        })
-        .catch(error => {
-          res.render(
-            path.resolve(this.VIEWS, "public", "product", "checkout-2.ejs"), {
-              title: "Checkout",
-              ccNumber: ccNumber,
-              cvvNumber: cvvNumber,
-              message: error,
-              user: req.user,
-              cart: cart,
-              csrfToken: req.csrfToken()
-            }
-          );
-        });
     }
   }
 
