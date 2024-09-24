@@ -1,87 +1,76 @@
 import path from "path";
-import { ProductRepository } from "../repositories/productRepository.js";
-import { ImageRepository } from "../repositories/imageRepository.js";
+import { ProductService } from "../services/productService.js";
+import { ImageService } from "../services/imageService.js";
 
 import { VIEWS } from "./../config/app-config.js";
 
 export class ProductController {
     constructor() {
-        this.productRepository = new ProductRepository();
-        this.imageRepository = new ImageRepository();
+        this.productService = new ProductService();
+        this.imageService = new ImageService();
     }
 
   async paginatedIndex(req, res) {
     try {
-      let results = await this.productRepository.getNumProducts();
-      let numProducts = results[0].numProducts;
-      let pageSize = this.productRepository.pageSize;
-      let totalPages = Math.ceil(numProducts / pageSize);
-      let products = await this.productRepository.getPage(1);
-      let images = await this.imageRepository.get();
-      let user = req.user;
-      let cart = [];
-      if (typeof(user) !== "undefined") {
-        cart = await this.productRepository.getUserCart(user.id);
-      }
-      
-      res.render(
-        path.resolve(VIEWS, "public", "homepage"), {
-          title: "Homepage",
-          images: images,
-          products: products,
-          totalPages: totalPages,
-          user: user,
-          cart: cart,
-          csrfToken: req.csrfToken()
-        }
-      );
+        const numProducts = await this.productService.getNumProducts();
+        const pageSize = this.productService.pageSize;
+        const totalPages = Math.ceil(numProducts / pageSize);
+        const products = await this.productService.getPage(1);
+        const images = await this.imageService.getAll();
+        const user = req.user;
+        const cart = user ? await this.productService.getUserCart(user.id) : [];
+        
+        res.render(
+            path.resolve(VIEWS, "public", "homepage"),
+            {
+                title: "Homepage",
+                images,
+                products,
+                totalPages,
+                user,
+                cart,
+                csrfToken: req.csrfToken()
+            }
+        );
     } catch(e) {
-      throw e;
+        throw e;
     }
   }
 
   async getPageContent(req, res) {
     try {
-      let products = await this.productRepository.getPage(req.params.page);
-      let images = await this.imageRepository.get();
-      let user = req.user;
-      let cart = [];
-      if (typeof(user) !== "undefined") {
-        cart = await this.productRepository.getUserCart(user.id);
-      }
-      res.send({
-        products: products,
-        images: images,
-        cart: cart
-      });
+        const products = await this.productService.getPage(req.params.page);
+        const images = await this.imageService.getAll();
+        const user = req.user;
+        const cart = user ? await this.productService.getUserCart(user.id) : [];
+        
+        res.send({ products, images, cart });
     } catch(e) {
-      throw e;
+        throw e;
     }
   }
 
   async goToProduct(req, res) {
     try {
-      let product = await this.productRepository.getById(req.params.id);
-      let images = await this.imageRepository.getByProductId(req.params.id);
-      let user = req.user;
-      let cart = [];
-      if (typeof(user) !== "undefined") {
-        cart = await this.productRepository.getUserCart(user.id);
-      }
+        const product = await this.productService.getById(req.params.id);
+        const images = await this.imageService.getByProductId(req.params.id);
+        const user = req.user;
+        const cart = user ? await this.productService.getUserCart(user.id) : [];
 
-      res.render(
-        path.resolve(VIEWS, "public", "product", "product-details"), {
-          title: "Product",
-          product: product,
-          images: images,
-          user: user,
-          cart: cart,
-          csrfToken: req.csrfToken()
-        }
-      );
+        res.render(
+            path.resolve(VIEWS, "public", "product", "product-details"),
+            {
+                title: "Product",
+                product,
+                images,
+                user,
+                cart,
+                csrfToken: req.csrfToken()
+            }
+        );
     } catch(e) {
-      res.status(404).render(path.resolve(VIEWS, "404.ejs"), {title: "Error", layout: "./public/layouts/layout-user"});
-      throw e;
+        res.status(404).render(path.resolve(VIEWS, "404.ejs"), {title: "Error", layout: "./public/layouts/layout-user"});
+        throw e;
     }
   }
 }
