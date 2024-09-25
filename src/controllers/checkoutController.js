@@ -1,5 +1,8 @@
 import path from "path";
 
+import { Subject } from '../utils/observer.js';
+import { EmailNotification, SMSNotification } from '../services/notificationService.js';
+
 class Validator {
     validate(value) {
         throw new Error("Method 'validate()' must be implemented.");
@@ -135,7 +138,7 @@ class PayPalAdapter extends PaymentMethod {
     }
 }
 
-export class CheckoutController {
+export class CheckoutController extends Subject {
     constructor(productModel, imageModel, userModel, views) {
         this.Product = productModel;
         this.Image = imageModel;
@@ -146,6 +149,9 @@ export class CheckoutController {
             creditCard: new CreditCardAdapter(),
             paypal: new PayPalAdapter()
         };
+
+        this.addObserver(new EmailNotification());
+        this.addObserver(new SMSNotification());
     }
 
   async goToCheckout(req, res) {
@@ -315,6 +321,11 @@ export class CheckoutController {
         products.forEach(product => {
           let promise = Product.createOrderItem(orderId, product.id, product.price, product.quantity);
           promises.push(promise);
+        });
+
+        // Notificar observadores
+        this.notifyObservers({
+            message: `Novo pedido criado: ID ${orderId}, Total: ${total_order}`
         });
       })
       .catch(e => {
